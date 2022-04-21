@@ -4,7 +4,7 @@
     "details": [
     {
       "appID": "9F55972V7L.esprit.tn.miniprojetIyum",
-      "paths": ["./"]
+      "paths": ["*"]
     }
     ]
   }

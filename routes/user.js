@@ -135,7 +135,7 @@ router.post("/register", async (req, res) => {
             }).save();
         }
         //const text = `Iyum://reset-password/${user._id}/${token.token}`;
-        const text = `Iyum://`
+        const text = `https://zahracarthage.github.io/.well-known/apple-app-site-association`
         await sendEmail(user.email, "Password reset", text);
         res.send("password reset link sent to your email account");
 
