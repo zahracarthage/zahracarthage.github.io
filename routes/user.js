@@ -30,19 +30,19 @@ router.post("/Login", async (req, res) => {
   // Our login logic starts here
   try {
     // Get user input
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     // Validate user input
-    if (!(username && password)) {
+    if (!(email && password)) {
       res.status(400).send("All input is required");
     }
     // Validate if user exist in our database
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       // Create token
       const token = jwt.sign(
-        { user_id: user._id, username },
+        { user_id: user._id, email },
         process.env.TOKEN_KEY,
         {
           expiresIn: "2h",
@@ -108,6 +108,7 @@ router.post("/register", async (req, res) => {
       );
       // save user token
       user.token = token;
+      user.user_id = id
   
       // return new user
       res.status(201).json({user,accessToken: token});
@@ -135,7 +136,7 @@ router.post("/register", async (req, res) => {
             }).save();
         }
         //const text = `Iyum://reset-password/${user._id}/${token.token}`;
-        const text = `https://zahracarthage.github.io/.well-known/apple-app-site-association`
+        const text = `https://zahracarthage.github.io/${user._id}/${token.token}`
         await sendEmail(user.email, "Password reset", text);
         res.send("password reset link sent to your email account");
 
@@ -158,7 +159,7 @@ router.post("/:userId/:token", async (req, res) => {
             userId: user._id,
             token: req.params.token,
         });
-        if (!token) return res.status(400).send("Invalid link or expired");
+        if (!token) return res.status(400).send("Invalid link or expired");  console.log("Invalid link")
 
         user.password = await bcrypt.hash(req.body.password, 10);
 
@@ -166,6 +167,7 @@ router.post("/:userId/:token", async (req, res) => {
         await token.delete();
 
         res.send("password reset sucessfully.");
+        console.log("password resent successfully")
     } catch (error) {
         res.send("An error occured");
         console.log(error);
