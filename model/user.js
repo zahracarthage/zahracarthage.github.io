@@ -31,9 +31,14 @@ const usersSchema =  new mongoose.Schema({
         ref : "Posts",
         default: []
       }],
-      
-  
-      
+      phoneNumber : {
+        type: String,
+        required: false
+      },
+      verified : {
+        type: Boolean, 
+        default : false
+      }
     })
 
 

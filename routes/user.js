@@ -9,10 +9,40 @@ const sendEmail = require("../utils/email/sendEmail");
 const Token = require("../model/token.model");
 const crypto = require("crypto");
 const router = express.Router(); 
+const multer = require('multer');
 
+
+const storage = multer.diskStorage({
+  destination: function(req,file,cb) {
+      cb(null,'./images/');
+
+  },
+  filename: function(req,file,cb){
+      console.log(file.originalname);
+          cb(null,file.originalname);
+
+  },
+})
+const upload = multer({storage:storage}).single('image');
+
+
+
+
+router.post("/getUserDetails/", async(req,res)=> {
+  try {
+    // Get user input
+    const email = req.body.email;
+
+    const FoundUser = await User.findOne({ email });
+
+    res.status(201).json({FoundUser});
+  } catch (err) {
+    console.log(err);
+  }
+   
+})
 
 router.get("/getAllUsers", async(req,res) => {
-
     try{
         const Users = await User.find(); 
         res.json(Users); 
@@ -64,37 +94,33 @@ router.post("/Login", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-
     // Our register logic starts here
     try {
-      // Get user input
-      const { username, password, email, picture, followers, following, posts} = req.body;
-  
+      const { username, password, email, followers, following, posts} = req.body;
+     // const picture = req.file.path;
+
       // Validate user input
       if (!(username && password && email)) {
         res.status(400).send("All input is required");
       }
   
-      // check if user already exist
-      // Validate if user exist in our database
+
       const oldUser = await User.findOne({ email });
   
       if (oldUser) {
         return res.status(409).send("User Already Exist. Please Login");
       }
   
-      //Encrypt user password
       encryptedPassword = await bcrypt.hash(password, 10);
   
-      // Create user in our database
       const user = await User.create({
         username,
-        password,
-        picture,
         followers,
         following,
         posts,
-        email: email.toLowerCase(), // sanitize: convert email to lowercase
+        phoneNumber,
+        email: email.toLowerCase(), 
+
         password: encryptedPassword,
       });
   
@@ -108,7 +134,7 @@ router.post("/register", async (req, res) => {
       );
       // save user token
       user.token = token;
-      user.user_id = id
+      user.user_id = id;
   
       // return new user
       res.status(201).json({user,accessToken: token});
@@ -117,6 +143,34 @@ router.post("/register", async (req, res) => {
     }
     // Our register logic ends here
   });
+
+  router.put("/update/:email", async(req,res) => 
+  {
+
+  User.findOneAndUpdate(req.params.email, {
+      username: req.body.username,
+
+      phoneNumber: req.body.phoneNumber
+  }, {new: true})
+  .then(User => {
+      if(!User) {
+          return res.status(404).send({
+              message: "Note not found with email " + req.params.email
+          });
+      }
+      res.send(User);
+  }).catch(err => {
+      if(err.kind === 'email') {
+          return res.status(404).send({
+              message: "Note not found with email " + req.params.email
+          });                
+      }
+      return res.status(500).send({
+          message: "Error updating note with email " + req.params.email
+      });
+  });
+});
+  
 
 
   router.post("/requestRestPassword", async (req, res) => {
