@@ -11,7 +11,10 @@ app.use(bodyParser.json());
 
 
 const userRouter = require('./routes/user');
+const ManagerRouter = require('./routes/Manager')
 app.use('/user', userRouter);
+app.use('/manager',ManagerRouter)
+
 
 const { API_PORT } = process.env;
 const port = process.env.PORT || API_PORT;
