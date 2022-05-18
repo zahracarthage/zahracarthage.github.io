@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sign-up form</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body style="margin-top: 30px;">
+    <div class="container register">
+        <div class="d-flex justify-content-center">
+            <div class="contact">
+                {{msg}}
+                <form method="POST" action="verify">
+                    <p>
+                        <label>Enter otp</label>
+                        <input type="text" name="otp" required>
+                    </p>
+                    <p class="full">
+                        <button type="submit">Submit</button>
+                    </p>
+                </form>
+                <br>
+                <form method="POST" action="resend">
+                    <p class="full">
+                        <button type="submit">resend otp</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

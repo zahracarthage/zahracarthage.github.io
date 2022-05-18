@@ -6,10 +6,16 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const sendEmail = require("../utils/email/sendEmail");
+const sendOtp = require("../utils/email/sendOtp");
 const Token = require("../model/token.model");
 const crypto = require("crypto");
 const router = express.Router(); 
 const multer = require('multer');
+
+var otp = Math.random();
+otp = otp * 1000000;
+otp = parseInt(otp);
+console.log(otp);
 
 
 const storage = multer.diskStorage({
@@ -96,7 +102,7 @@ router.post("/Login", async (req, res) => {
 router.post("/register", async (req, res) => {
     // Our register logic starts here
     try {
-      const { username, password, email, followers, following, posts} = req.body;
+      const { username, password, email, followers, following, posts, phoneNumber} = req.body;
      // const picture = req.file.path;
 
       // Validate user input
@@ -124,7 +130,7 @@ router.post("/register", async (req, res) => {
         password: encryptedPassword,
       });
   
-      // Create token
+      //Create token
       const token = jwt.sign(
         { user_id: user._id, email },
         process.env.TOKEN_KEY,
@@ -134,7 +140,7 @@ router.post("/register", async (req, res) => {
       );
       // save user token
       user.token = token;
-      user.user_id = id;
+      //user.user_id = id;
   
       // return new user
       res.status(201).json({user,accessToken: token});
@@ -149,7 +155,6 @@ router.post("/register", async (req, res) => {
 
   User.findOneAndUpdate(req.params.email, {
       username: req.body.username,
-
       phoneNumber: req.body.phoneNumber
   }, {new: true})
   .then(User => {
@@ -171,6 +176,30 @@ router.post("/register", async (req, res) => {
   });
 });
   
+
+router.post("/verify/:email/:verified", async(req, res) =>{
+  User.findOneAndUpdate(req.params.email, {
+    verified: req.params.verified,
+  
+}, {new: true})
+.then(User => {
+    if(!User) {
+        return res.status(404).send({
+            message: "Note not found with email " + req.params.email
+        });
+    }
+    res.send(User);
+}).catch(err => {
+    if(err.kind === 'email') {
+        return res.status(404).send({
+            message: "Note not found with email " + req.params.email
+        });                
+    }
+    return res.status(500).send({
+        message: "Error updating note with email " + req.params.email
+    });
+});
+});
 
 
   router.post("/requestRestPassword", async (req, res) => {
@@ -227,4 +256,64 @@ router.post("/:userId/:token", async (req, res) => {
         console.log(error);
     }
 });
+
+
+
+
+router.post('/sendOtp', async (req, res) =>{  
+    email = req.body.email;
+    console.log(email)
+  
+    try{
+
+        await sendOtp(req.body.email, "Email Verification", otp);
+       // res.render('otp');
+        res.send("Your one time password has been sent successfully");
+
+      } catch (error) {
+          res.send("An error occured");
+          console.log(error);
+      }
+  
+    });
+
+
+router.post('/resendOtp', async (req, res) => {
+
+  const email = req.body.email
+  try{
+
+    await sendOtp(req.body.email, "Email Verification", otp);
+   // res.render('otp');
+    res.send("Your one time password has been resent successfully");
+
+  } catch (error) {
+      res.send("An error occured");
+      console.log(error);
+  }
+
+});
+
+
+router.post('/verifyOtp', function (req, res) {
+
+  if (req.body.otp == otp) {
+    return res.status(200).send({
+      message: "Your account has been successfully verified"
+    })
+     
+  }
+  else {
+    return res.status(404).send({
+      message: "the code you entered is incorrect"
+  });    
+    
+  }
+
+
+  
+});
+
+
+
   module.exports = router;
