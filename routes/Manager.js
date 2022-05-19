@@ -94,5 +94,18 @@ router.post("/Login", async (req, res) => {
   });
   
 
+  router.post("/getManagerDetails/", async(req,res)=> {
+    try {
+      // Get user input
+      const email = req.body.email;
+      const FoundUser = await Manager.findOne({ email });
+      res.status(201).json({FoundUser});
+      
+    } catch (err) {
+      console.log(err);
+    }
+     
+  })
+
 module.exports = router;
  

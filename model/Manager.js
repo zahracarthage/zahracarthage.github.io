@@ -15,7 +15,13 @@ const managerSchema = new mongoose.Schema({
     }, 
     managerAt: {
         type: String, 
-        require: true, 
+        required: false, 
+        
+    },
+    verified: {
+        type: String, 
+        default : false,
+        
     }
 
 })

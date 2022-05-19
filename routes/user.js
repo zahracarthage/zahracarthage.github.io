@@ -102,15 +102,12 @@ router.post("/Login", async (req, res) => {
 router.post("/register", async (req, res) => {
     // Our register logic starts here
     try {
-      const { username, password, email, followers, following, posts, phoneNumber} = req.body;
-     // const picture = req.file.path;
 
-      // Validate user input
+      const { username, password, email, followers, following, posts, phoneNumber} = req.body;
+  
       if (!(username && password && email)) {
         res.status(400).send("All input is required");
       }
-  
-
       const oldUser = await User.findOne({ email });
   
       if (oldUser) {
@@ -152,12 +149,13 @@ router.post("/register", async (req, res) => {
 
   router.put("/update/:email", async(req,res) => 
   {
-
+    console.log(req.params.email)
   User.findOneAndUpdate(req.params.email, {
       username: req.body.username,
       phoneNumber: req.body.phoneNumber
   }, {new: true})
   .then(User => {
+    
       if(!User) {
           return res.status(404).send({
               message: "Note not found with email " + req.params.email
